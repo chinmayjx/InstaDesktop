@@ -1,6 +1,7 @@
 # %%
 import os
 import time
+import pickle
 import random
 import urllib.request
 from selenium import webdriver
@@ -9,18 +10,17 @@ from selenium.webdriver.common.keys import Keys
 
 
 # %%
-username = None
-passwd = None
-driver = webdriver.Firefox('firefox-driver')
-driver.get('https://instagram.com')
-time.sleep(5)
-driver.find_element_by_name('username').send_keys(username)
-driver.find_element_by_name('password').send_keys(passwd)
-time.sleep(1)
-driver.find_element_by_xpath("//button[@class='sqdOP  L3NKy   y3zKF     ']").click()
-time.sleep(5)
-driver.get(f'https://www.instagram.com/{username}/saved/')
 
+driver = webdriver.Firefox('firefox-driver')
+print(type(driver))
+
+driver.get('https://instagram.com')
+with open('data/cookies.pkl','rb') as f:
+    cookies = pickle.load(f)
+    for c in cookies:
+        driver.add_cookie(c)
+
+driver.get(f'https://instagram.com/')
 # %%
 nb = driver.find_elements_by_xpath("//a[@class=' _65Bje    coreSpriteRightPaginationArrow']")
 print(len(nb))
@@ -31,7 +31,7 @@ while True:
     try:
         while True:
             ct += 1
-            img = driver.find_elements_by_xpath("//div[not(@class='eLAPa')]/div[@class='KL4Bh']//img")
+            img = driver.find_elements_by_xpath("//div[not(@class='eLAPa')]/div[@class='KL4Bh']/img")
             if len(img)>0:
                 dwn = 1
                 if len(img) == 1: dwn = 0
@@ -82,3 +82,4 @@ urllib.request.urlretrieve(img[0].get_attribute('srcset').split(',')[-1].split()
 
 
 # %%
+
