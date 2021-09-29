@@ -7,7 +7,7 @@ from numpy.core.fromnumeric import mean, sort
 
 # %% export distance data
 
-N_PARTS = 10
+N_PARTS = 200
 
 def pixav(img):
     w,h = img.size
@@ -41,6 +41,7 @@ with open('data/rgb.json','w+') as f:
 for i in range(len(all)): dc[all[i]] = []
 
 for i in range(len(all)):
+    print(i, end=' ',flush=True)
     dc[all[i]].append((all[i],0))
     for j in range(i+1,len(all)):
         dst = sqrt((rgb[all[i]][0]-rgb[all[j]][0])*(rgb[all[i]][0]-rgb[all[j]][0])+(rgb[all[i]][1]-rgb[all[j]][1])*(rgb[all[i]][1]-rgb[all[j]][1])+(rgb[all[i]][2]-rgb[all[j]][2])*(rgb[all[i]][2]-rgb[all[j]][2]))
@@ -52,3 +53,5 @@ for i in range(len(all)):
 
 with open('data/dc.json','w+') as f:
     json.dump(dc,f)
+
+# %%

@@ -3,7 +3,7 @@ import os
 import json
 import random
 import numpy as np
-from PIL import ImageFilter, Image
+from PIL import ImageFilter, Image, ImageEnhance
 from numpy.core.fromnumeric import mean, sort
 
 
@@ -38,8 +38,13 @@ print(endi, r1, lst[r1])
 i2 = i2.resize((int(i2.size[0]*1080/i2.size[1]),1080))
 i1 = i1.resize((1920,1080))
 i1 = i1.filter(ImageFilter.GaussianBlur(radius=45))
-i1.paste(i2,(int((1920-i2.size[0])/2),0))
+i1 = ImageEnhance.Brightness(i1).enhance(1.2)
+i1 = ImageEnhance.Contrast(i1).enhance(0.7)
+tint = Image.new("RGB",i1.size,color=(int(rgb[all[r1]][0]),int(rgb[all[r1]][1]),int(rgb[all[r1]][2])))
+i1 = Image.blend(i1,tint,0.3)
+# tint.show()
 # i1.show()
+i1.paste(i2,(int((1920-i2.size[0])/2),0))
 i1.save('wallp.png')
 
 os.system(f'gsettings set org.gnome.desktop.background picture-uri file:////{os.getcwd()+"/wallp.png"}')
