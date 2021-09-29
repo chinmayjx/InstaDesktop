@@ -34,7 +34,6 @@ i1 = Image.open('img/'+lst[r1][0])
 print(endi, r1, lst[r1])
 
 
-
 i2 = i2.resize((int(i2.size[0]*1080/i2.size[1]),1080))
 i1 = i1.resize((1920,1080))
 i1 = i1.filter(ImageFilter.GaussianBlur(radius=45))
