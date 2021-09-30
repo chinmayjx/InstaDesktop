@@ -1,57 +1,44 @@
 # %%
-import os
+from PIL import ImageFilter, Image, ImageEnhance, ImageDraw
+from numpy import ceil
+from scipy.sparse.construct import rand
+from sklearn.cluster import KMeans
+import random
 import json
-from math import sqrt
-from PIL import Image
-from numpy.core.fromnumeric import mean, sort
+import os
 
-# %% export distance data
+def topxclrs(img: Image.Image, ncl: int, show=False):
+    w, h = 150, 150
+    img = img.resize((w, h))
+    clrs = []
+    for x in range(0, w):
+        for y in range(0, h):
+            clrs.append(img.getpixel((x, y)))
 
-N_PARTS = 200
-
-def pixav(img):
-    w,h = img.size
-    rr = gg = bb = 0
-    ct = 0
-    for x in range(0,w,int(w/N_PARTS)):
-        for y in range(0,h,int(h/N_PARTS)):
-            ct += 1
-            rrt,ggt,bbt = img.getpixel((x,y))
-            rr += rrt
-            gg += ggt
-            bb += bbt
-    return (rr/ct,gg/ct,bb/ct)
+    kmeans = KMeans(n_clusters=ncl)
+    kmeans.fit(clrs)
+    if show:
+        cntrs = kmeans.cluster_centers_
+        clri = Image.new("RGB", (200*ncl, 200))
+        for i in range(ncl):
+            clri.paste(Image.new("RGB", (200, 200), color=tuple(
+                [int(x) for x in cntrs[i]])), (200*i, 0))
+        clri.show()
+    return kmeans.cluster_centers_
 
 
-all = os.listdir('img')
-imgs = [None] * len(all)
-dc = {}
-rgb = {}
-
-for i in range(len(all)):
-    imgs[i] = Image.open('img/'+all[i])
-    dc[all[i]] = []
-    rgb[all[i]] = pixav(imgs[i])
-
-# %%
-with open('data/rgb.json','w+') as f:
-    json.dump(rgb,f)
-
-# %% 
-for i in range(len(all)): dc[all[i]] = []
-
-for i in range(len(all)):
-    print(i, end=' ',flush=True)
-    dc[all[i]].append((all[i],0))
-    for j in range(i+1,len(all)):
-        dst = sqrt((rgb[all[i]][0]-rgb[all[j]][0])*(rgb[all[i]][0]-rgb[all[j]][0])+(rgb[all[i]][1]-rgb[all[j]][1])*(rgb[all[i]][1]-rgb[all[j]][1])+(rgb[all[i]][2]-rgb[all[j]][2])*(rgb[all[i]][2]-rgb[all[j]][2]))
-        dc[all[i]].append((all[j],dst))
-        dc[all[j]].append((all[i],dst))
+tc = {}
+def export_data():
+    all = os.listdir('img')
+    for i in all:
+        if i not in tc: tc[i]={}
+        img = Image.open('img/'+i)
+        clrs = topxclrs(img,3)
+        clrs = [tuple([int(x) for x in clr]) for clr in clrs]
+        tc[i]["t3clr"] = clrs
+        
+    with open('data/properties.json','w+') as f:
+        json.dump(tc,f)
     
-    dc[all[i]] = sorted(dc[all[i]],key=lambda t: t[-1])
-# %%
 
-with open('data/dc.json','w+') as f:
-    json.dump(dc,f)
-
-# %%
+export_data()
