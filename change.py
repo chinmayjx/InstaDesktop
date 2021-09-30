@@ -33,15 +33,15 @@ def build_wallp(fnm: str):
     draw = ImageDraw.Draw(bg)
 
     diar = (75, 150)
-    pc = 0.3
+    pc = 0.25
     make_circles(draw, clrs, ((0, 0), (empw, bg.size[1])), diar, pc)
     make_circles(
         draw, clrs, ((bg.size[0]-empw, 0), (bg.size[0], bg.size[1])), diar, pc)
     # bg.show()
 
     bg = bg.filter(ImageFilter.GaussianBlur(radius=120))
-    bg = ImageEnhance.Brightness(bg).enhance(0.8)
-    bg = ImageEnhance.Color(bg).enhance(1.5)
+    bg = ImageEnhance.Brightness(bg).enhance(0.7)
+    # bg = ImageEnhance.Color(bg).enhance(1.5)
     bg.paste(img, (empw, 0))
     # bg.show()
     bg.save('wallp.png')
