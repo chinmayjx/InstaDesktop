@@ -30,7 +30,7 @@ btn_html = `
 `
 
 function btncl(ln){
-  console.log("download:"+ln);
+  console.log("visit:"+ln);
 }
 
 function insert_btns(){

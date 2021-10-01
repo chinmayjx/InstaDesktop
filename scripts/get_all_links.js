@@ -1,5 +1,6 @@
 async function fn(){
   async function get_all_links(){
+    window.scrollTo(0,0);
     return new Promise(resolve => {
       var inf_scroll = setInterval(function (){
         get_links()
@@ -26,7 +27,7 @@ async function fn(){
   }
   await get_all_links();
   links = Array.from(links);
-  console.log(links);
+  console.log(links.length);
   return links;
 }
 
