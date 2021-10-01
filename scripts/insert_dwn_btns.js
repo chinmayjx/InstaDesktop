@@ -29,29 +29,29 @@ btn_html = `
    >
 `
 
-function btncl(ln){
-  console.log("visit:"+ln);
+function btncl(ln) {
+  console.log("visit:" + ln);
 }
 
-function insert_btns(){
+function insert_btns() {
   prnt = document.querySelectorAll("._bz0w");
   e = prnt[9];
-  for(var i=0;i<prnt.length;i++){
+  for (var i = 0; i < prnt.length; i++) {
     atag = prnt[i].querySelector("a");
-    if(!atag){
-    	continue;
+    if (!atag) {
+      continue;
     }
-    if(!prnt[i].querySelector(".dwn_btn")){
+    if (!prnt[i].querySelector(".dwn_btn")) {
       var btn = document.createElement("div");
       btn.innerHTML = btn_html;
       var tmp = atag.getAttribute('href')
-      btn.setAttribute("onclick","btncl('"+tmp+"')")
+      btn.setAttribute("onclick", "btncl('" + tmp + "')")
       prnt[i].appendChild(btn);
     }
   }
 }
 
-insert_btns();
+setTimeout(insert_btns, 2000);
 window.onscroll = insert_btns;
 
 // document.querySelector("._bz0w").querySelector("a").getAttribute("href");

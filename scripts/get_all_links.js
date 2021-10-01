@@ -1,27 +1,27 @@
-async function fn(){
-  async function get_all_links(){
-    window.scrollTo(0,0);
+async function fn() {
+  async function get_all_links() {
+    window.scrollTo(0, 0);
     return new Promise(resolve => {
-      var inf_scroll = setInterval(function (){
+      var inf_scroll = setInterval(function () {
         get_links()
-        window.scrollTo(0,document.body.scrollHeight);
-        setTimeout(function(){
-          if(document.querySelector(".ZUqME")){
+        window.scrollTo(0, document.body.scrollHeight);
+        setTimeout(function () {
+          if (document.querySelector(".ZUqME")) {
             console.log("loading more");
           }
-          else{
+          else {
             clearInterval(inf_scroll);
             resolve();
           }
-        },100);
-      },1000);  
+        }, 100);
+      }, 1000);
     });
   }
 
   var links = new Set()
-  function get_links(){
+  function get_links() {
     var l = document.querySelectorAll("._bz0w a")
-    l.forEach(function(a){
+    l.forEach(function (a) {
       links.add(a.getAttribute('href'))
     });
   }

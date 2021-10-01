@@ -6,12 +6,23 @@
     android:layout_gravity="center_horizontal"
     android:orientation="vertical">
 
-    <WebView
-        android:id="@+id/webView"
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1">
+
+        <WebView
+            android:id="@+id/hiddenWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
 
     <Button
         android:id="@+id/run"

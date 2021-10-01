@@ -11,6 +11,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.CookieManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -26,12 +27,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "CJ";
     String get_all_links,insert_dwn_btns,download_post;
-    WebView wv;
+    String username = "chinmayjain08";
+    WebView wv,hwv;
+    WebChromeClient wvChromeClient;
+    WebViewClient wvClient;
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
         wv = findViewById(R.id.webView);
+        hwv = findViewById(R.id.hiddenWebView);
+//        hwv = new WebView(getApplicationContext());
         Button run = findViewById(R.id.run);
+
+        readScripts();
+        setupWV();
+        setupHWV();
+
+
+        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+        run.setOnClickListener(view -> {
+            wv.evaluateJavascript(download_post,null);
+        });
+    }
+
+    void readScripts(){
         try {
             Scanner s = new Scanner(getAssets().open("scripts/get_all_links.js")).useDelimiter("\\A");
             get_all_links = s.hasNext() ? s.next() : "";
@@ -51,16 +71,32 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    void setupHWV(){
+        hwv.getSettings().setJavaScriptEnabled(true);
+        hwv.getSettings().setDomStorageEnabled(true);
+        hwv.setWebViewClient(wvClient);
+        hwv.setWebChromeClient(wvChromeClient);
+    }
 
-        wv.setWebViewClient(new WebViewClient(){
+    void setupWV(){
+        wv.getSettings().setJavaScriptEnabled(true);
+        wv.getSettings().setDomStorageEnabled(true);
+        wvClient = new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
-                wv.evaluateJavascript(insert_dwn_btns,null);
+                if(view == wv) {
+                    wv.evaluateJavascript(insert_dwn_btns, null);
+                }
+                if(view == hwv){
+                    hwv.evaluateJavascript(download_post,null);
+                }
                 super.onPageFinished(view, url);
             }
-        });
-        wv.setWebChromeClient(new WebChromeClient(){
+        };
+
+        wvChromeClient = new WebChromeClient(){
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 String action = "";
@@ -72,20 +108,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                     action+=mess.charAt(i);
                 }
-                Log.d(TAG, action + '\n' + mess);
-                Log.d(TAG, "onConsoleMessage: " + consoleMessage.message() + " -- From line " + consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
+                if(action.equals("visit")){
+                    hwv.loadUrl("http://instagram.com"+mess);
+                }
+                if(action.equals("download")){
+                    String fnm = "a" + String.valueOf(Math.abs(new Random().nextLong())) + ".jpg";
+                    downloadFile(mess,fnm);
+                }
+                Log.d(TAG, action + " : " + mess);
+                if(action.isEmpty())Log.d(TAG, "onConsoleMessage: " + consoleMessage.message() + " -- From line " + consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
                 return super.onConsoleMessage(consoleMessage);
             }
-        });
-        wv.getSettings().setJavaScriptEnabled(true);
-        wv.getSettings().setDomStorageEnabled(true);
-
-        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
-
-
-        run.setOnClickListener(view -> {
-            wv.evaluateJavascript(download_post,null);
-        });
+        };
+        wv.setWebViewClient(wvClient);
+        wv.setWebChromeClient(wvChromeClient);
     }
 
     @Override
