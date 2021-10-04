@@ -14,7 +14,9 @@ async function get_links() {
   function update_set() {
     var img = document.querySelectorAll(".ZyFrc  .KL4Bh > img");
     for (var i = 0; i < img.length; i++) {
-      var tmp = img[i].getAttribute('src');
+      var srcset = img[i].getAttribute('srcset');
+      if(!srcset) continue;
+      var tmp = srcset.split(',').at(-1).split(' ')[0];
       if (tmp) set.add(tmp);
     }
   }

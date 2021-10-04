@@ -3,9 +3,11 @@ package cj.instawall;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -19,44 +21,94 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "CJ";
+    String HWV_FLAG;
     String get_all_links,insert_dwn_btns,download_post;
     String username = "chinmayjain08";
+    HashMap<String,String> url_to_name;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor spEditor;
     WebView wv,hwv;
     WebChromeClient wvChromeClient;
     WebViewClient wvClient;
+    Button run,hide_wv,sync;
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+        sharedPreferences = getPreferences(MODE_PRIVATE);
+        spEditor = sharedPreferences.edit();
         wv = findViewById(R.id.webView);
         hwv = findViewById(R.id.hiddenWebView);
 //        hwv = new WebView(getApplicationContext());
-        Button run = findViewById(R.id.run);
-
+        hwv.setMinimumHeight(1920);
+        hwv.setMinimumWidth(1080);
+        run = findViewById(R.id.run);
+        hide_wv = findViewById(R.id.hide_wv);
+        sync = findViewById(R.id.sync);
+        readObjects();
         readScripts();
         setupWV();
         setupHWV();
 
-
         wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+        
         run.setOnClickListener(view -> {
-            wv.evaluateJavascript(download_post,null);
+            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
         });
+        run.setOnLongClickListener(view -> {
+
+            return true;
+        });
+        hide_wv.setOnClickListener(view -> {
+            if(wv.getVisibility() == View.VISIBLE) wv.setVisibility(View.INVISIBLE);
+            else wv.setVisibility(View.VISIBLE);
+        });
+        sync.setOnClickListener(view -> {
+            HWV_FLAG = "sync";
+            hwv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+        });
+    }
+
+    void saveObject(Object o, String n){
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(getFilesDir(),n)));
+            out.writeObject(o);
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    void readObjects(){
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name")));
+            url_to_name = (HashMap<String, String>) in.readObject();
+        }
+        catch (FileNotFoundException e){
+            url_to_name = new HashMap<>();
+        }
+        catch (Exception e) {
+            Log.d(TAG, Log.getStackTraceString(e));
+        }
     }
 
     void readScripts(){
@@ -90,7 +142,11 @@ public class MainActivity extends AppCompatActivity {
                     wv.evaluateJavascript(insert_dwn_btns, null);
                 }
                 if(view == hwv){
-                    hwv.evaluateJavascript(download_post,null);
+                    if(HWV_FLAG.equals("sync")){
+                        hwv.evaluateJavascript(get_all_links,null);
+                        HWV_FLAG = "";
+                    }
+                    else hwv.evaluateJavascript(download_post,null);
                 }
                 super.onPageFinished(view, url);
             }
@@ -108,6 +164,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     action+=mess.charAt(i);
                 }
+                if(action.equals("post_link")){
+                    url_to_name.put(mess,"");
+                }
                 if(action.equals("visit")){
                     hwv.loadUrl("http://instagram.com"+mess);
                 }
@@ -122,6 +181,18 @@ public class MainActivity extends AppCompatActivity {
         };
         wv.setWebViewClient(wvClient);
         wv.setWebChromeClient(wvChromeClient);
+    }
+
+    @Override
+    protected void onDestroy() {
+//        Toast.makeText(this, "destroy", Toast.LENGTH_SHORT).show();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        saveObject(url_to_name,"url_to_name");
+        super.onPause();
     }
 
     @Override
@@ -142,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     File f = new File(getExternalFilesDir(null),filename);
                     BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
                     FileOutputStream out = new FileOutputStream(f);
-                    byte buffer[] = new byte[1024];
+                    byte[] buffer = new byte[1024];
                     int rd;
                     while((rd=in.read(buffer))>0){
                         out.write(buffer,0,rd);

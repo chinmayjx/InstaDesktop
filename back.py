@@ -10,13 +10,18 @@ import urllib.request
 from selenium import webdriver
 from PIL import Image, ImageFilter
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox import options
+from selenium.webdriver.firefox.options import Options
 
 driver = None
 username = 'chinmayjain08'
 
 def initialize_driver():
     global driver
-    driver = webdriver.Firefox('firefox-driver')
+    opt = Options()
+    # opt.headless = True
+    driver = webdriver.Firefox('firefox-driver',options=opt)
+    
     driver.get('https://instagram.com')
     with open('data/cookies.pkl', 'rb') as f:
         cookies = pickle.load(f)
