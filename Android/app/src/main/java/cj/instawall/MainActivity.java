@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -110,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
             HWV_LAST_VISIT = keys[rnd.nextInt(url_to_name.keySet().size())];
             POST_DOWNLOAD_ACTION = "wallpaper";
             hwv.loadUrl("https://instagram.com" + keys[rnd.nextInt(url_to_name.keySet().size())]);
-
+            random.setText("");
+            random.setClickable(false);
         });
     }
 
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             out.writeObject(o);
         }
         catch (Exception e){
-
+            Log.d(TAG, e.toString());
         }
     }
 
@@ -128,9 +131,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name")));
             url_to_name = (HashMap<String, HashSet<String>>) in.readObject();
-            if(url_to_name == null){
-                url_to_name = new HashMap<>();
-            }
         }
         catch (FileNotFoundException e){
             Log.d(TAG, "FileNotFound");
@@ -139,7 +139,17 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
-        Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
+        if(url_to_name == null || url_to_name.keySet().size() == 0){
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name_backup")));
+                url_to_name = (HashMap<String, HashSet<String>>) in.readObject();
+            }
+            catch (Exception e){
+                Log.d(TAG, "errrrrrr");
+            }
+        }
+        Toast.makeText(getApplicationContext(), String.valueOf(url_to_name.keySet().size()), Toast.LENGTH_SHORT).show();
+
     }
 
     void readScripts(){
@@ -266,6 +276,11 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
+        random.post(()->{
+            random.setClickable(true);
+            random.setText("W");
+            Toast.makeText(getApplicationContext(), "Wallpaper Changed", Toast.LENGTH_SHORT).show();
+        });
     }
 
     void downloadFile(String url){
