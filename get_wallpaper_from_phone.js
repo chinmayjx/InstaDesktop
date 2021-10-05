@@ -15,9 +15,11 @@ http.createServer(function(request, response) {
             response.write("received");
             response.end();
             console.log(process.cwd());
+            file.close();
             exec(`gsettings set org.gnome.desktop.background picture-uri '${process.cwd()}/abc.jpg'`);
         })
     } else {
+        console.log("GET");
         response.write("GET");
         response.end();
     }

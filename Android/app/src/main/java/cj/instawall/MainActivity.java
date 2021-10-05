@@ -291,9 +291,10 @@ public class MainActivity extends AppCompatActivity {
                 while((rd=in.read(buffer))>0){
                     out.write(buffer,0,rd);
                 }
+                out.flush();
+                out.close();
 
                 Log.d(TAG, "Written");
-
 
                 rd = conn.getInputStream().read(buffer);
                 Log.d(TAG, new String(Arrays.copyOfRange(buffer, 0, rd)));
