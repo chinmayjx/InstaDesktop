@@ -25,6 +25,10 @@ async function image_links(){
     console.log("waiting for page load");
   }
   
+  let n_posts = document.querySelectorAll(".Yi5aA").length;
+  if(n_posts==0) n_posts=1;
+  console.log("download_cnt:"+n_posts);
+  
   if(img.length == 1){
     console.log("only one image");
     update_set();

@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,11 +42,13 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "CJ";
-    String HWV_FLAG="";
+    String HWV_FLAG="",HWV_LAST_VISIT="", POST_DOWNLOAD_ACTION="";
     String get_all_links,insert_dwn_btns,download_post;
+    int DOWNLOAD_STACK_COUNT = 0;
     String username = "chinmayjain08";
     Random rnd = new Random();
     HashMap<String, HashSet<String>> url_to_name;
+    ArrayList<String> recent_downloads = new ArrayList<>();
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor spEditor;
     WebView wv,hwv;
@@ -78,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
         
         run.setOnClickListener(view -> {
             Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
+            Log.d(TAG, Arrays.toString(url_to_name.get(HWV_LAST_VISIT).toArray()));
+            Log.d(TAG, Arrays.toString(recent_downloads.toArray()));
         });
         run.setOnLongClickListener(view -> {
 
@@ -93,7 +98,12 @@ public class MainActivity extends AppCompatActivity {
         });
         random.setOnClickListener(view -> {
             String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
-            wv.loadUrl("https://instagram.com" + keys[rnd.nextInt(url_to_name.keySet().size())]);
+            recent_downloads.clear();
+            HWV_FLAG = "download_post";
+            HWV_LAST_VISIT = keys[rnd.nextInt(url_to_name.keySet().size())];
+            POST_DOWNLOAD_ACTION = "wallpaper";
+            hwv.loadUrl("https://instagram.com" + keys[rnd.nextInt(url_to_name.keySet().size())]);
+
         });
     }
 
@@ -186,7 +196,11 @@ public class MainActivity extends AppCompatActivity {
                     url_to_name.put(mess, new HashSet<>());
                 }
                 if(action.equals("visit")){
+                    HWV_LAST_VISIT = mess;
                     hwv.loadUrl("http://instagram.com"+mess);
+                }
+                if(action.equals("download_cnt")){
+                    DOWNLOAD_STACK_COUNT = Integer.parseInt(mess);
                 }
                 if(action.equals("download")){
                     downloadFile(mess);
@@ -229,25 +243,45 @@ public class MainActivity extends AppCompatActivity {
         }
         return "none";
     }
+
+    void setWallpaper(String fnm){
+
+    }
+
     void downloadFile(String url){
         String filename = filenameFromUrl(url);
         Log.d(TAG, filename);
         new Thread(() -> {
             try{
                 File f = new File(getExternalFilesDir(null),filename);
-                BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                FileOutputStream out = new FileOutputStream(f);
-                byte[] buffer = new byte[1024];
-                int rd;
-                while((rd=in.read(buffer))>0){
-                    out.write(buffer,0,rd);
+                if(f.exists()){
+                    Log.d(TAG, "already exists");
                 }
-                out.close();
-                in.close();
+                else{
+                    BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+                    FileOutputStream out = new FileOutputStream(f);
+                    byte[] buffer = new byte[1024];
+                    int rd;
+                    while((rd=in.read(buffer))>0){
+                        out.write(buffer,0,rd);
+                    }
+                    out.close();
+                    in.close();
+                }
                 Log.d(TAG, "success");
+                url_to_name.get(HWV_LAST_VISIT).add(filename);
+                recent_downloads.add(filename);
+
             }
             catch (Exception e){
                 Log.d(TAG, Log.getStackTraceString(e));
+            }
+            DOWNLOAD_STACK_COUNT--;
+            if(POST_DOWNLOAD_ACTION.equals("wallpaper")){
+                if(DOWNLOAD_STACK_COUNT == 0){
+                    int ri = rnd.nextInt(recent_downloads.size());
+                    Log.d(TAG, "Set wallpaper" + recent_downloads.get(ri));
+                }
             }
         }).start();
     }
