@@ -33,16 +33,19 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "CJ";
-    String HWV_FLAG;
+    String HWV_FLAG="";
     String get_all_links,insert_dwn_btns,download_post;
     String username = "chinmayjain08";
     Random rnd = new Random();
-    HashMap<String,String> url_to_name;
+    HashMap<String, HashSet<String>> url_to_name;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor spEditor;
     WebView wv,hwv;
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     void readObjects(){
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name")));
-            url_to_name = (HashMap<String, String>) in.readObject();
+            url_to_name = (HashMap<String, HashSet<String>>) in.readObject();
         }
         catch (FileNotFoundException e){
             url_to_name = new HashMap<>();
@@ -151,10 +154,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(view == hwv){
                     if(HWV_FLAG.equals("sync")){
-                        hwv.evaluateJavascript(get_all_links,null);
                         HWV_FLAG = "";
+                        hwv.evaluateJavascript(get_all_links,null);
                     }
-                    else hwv.evaluateJavascript(download_post,null);
+                    else if(HWV_FLAG.equals("download_post")){
+                        Log.d(TAG, "download_post");
+                        HWV_FLAG = "";
+                        hwv.evaluateJavascript(download_post,null);
+                    }
                 }
                 super.onPageFinished(view, url);
             }
@@ -172,15 +179,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                     action+=mess.charAt(i);
                 }
+                if(action.equals("flag_hwv")){
+                    HWV_FLAG = mess;
+                }
                 if(action.equals("post_link")){
-                    url_to_name.put(mess,"");
+                    url_to_name.put(mess, new HashSet<>());
                 }
                 if(action.equals("visit")){
                     hwv.loadUrl("http://instagram.com"+mess);
                 }
                 if(action.equals("download")){
-                    String fnm = "a" + String.valueOf(Math.abs(new Random().nextLong())) + ".jpg";
-                    downloadFile(mess,fnm);
+                    downloadFile(mess);
                 }
                 Log.d(TAG, action + " : " + mess);
                 if(action.isEmpty())Log.d(TAG, "onConsoleMessage: " + consoleMessage.message() + " -- From line " + consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
@@ -212,27 +221,33 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-
-    void downloadFile(String url, String filename){
-        new Thread(new Runnable(){
-            @Override
-            public void run() {
-                try{
-                    File f = new File(getExternalFilesDir(null),filename);
-                    BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                    FileOutputStream out = new FileOutputStream(f);
-                    byte[] buffer = new byte[1024];
-                    int rd;
-                    while((rd=in.read(buffer))>0){
-                        out.write(buffer,0,rd);
-                    }
-                    out.close();
-                    in.close();
-                    Log.d(TAG, "success");
+    String filenameFromUrl(String url){
+        Pattern p = Pattern.compile("\\w*.jpg");
+        Matcher m = p.matcher(url);
+        if(m.find()){
+            return url.substring(m.start(),m.end());
+        }
+        return "none";
+    }
+    void downloadFile(String url){
+        String filename = filenameFromUrl(url);
+        Log.d(TAG, filename);
+        new Thread(() -> {
+            try{
+                File f = new File(getExternalFilesDir(null),filename);
+                BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+                FileOutputStream out = new FileOutputStream(f);
+                byte[] buffer = new byte[1024];
+                int rd;
+                while((rd=in.read(buffer))>0){
+                    out.write(buffer,0,rd);
                 }
-                catch (Exception e){
-                    Log.d(TAG, Log.getStackTraceString(e));
-                }
+                out.close();
+                in.close();
+                Log.d(TAG, "success");
+            }
+            catch (Exception e){
+                Log.d(TAG, Log.getStackTraceString(e));
             }
         }).start();
     }

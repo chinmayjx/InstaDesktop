@@ -30,10 +30,6 @@ async function fn() {
     >
   `;
 
-    function btncl(ln) {
-        console.log("visit:" + ln);
-    }
-
     function insert_btns() {
         prnt = document.querySelectorAll("._bz0w");
         e = prnt[9];
@@ -46,19 +42,19 @@ async function fn() {
                 var btn = document.createElement("div");
                 btn.innerHTML = btn_html;
                 var tmp = atag.getAttribute('href');
-                btn.setAttribute("onclick", "btncl('" + tmp + "')");
+                btn.setAttribute("onclick", `console.log('flag_hwv:download_post');console.log('visit:${tmp}');`);
                 prnt[i].appendChild(btn);
             }
         }
     }
 
     await new Promise(r => {
-      	let inter = setInterval(() => {
+        let inter = setInterval(() => {
             if (document.querySelector("._bz0w a")) {
                 console.log("insert btns");
-              	insert_btns();
+                insert_btns();
                 r();
-              	clearInterval(inter);
+                clearInterval(inter);
             }
         }, 100);
     });
