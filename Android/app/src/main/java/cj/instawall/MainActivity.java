@@ -29,18 +29,23 @@ import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
         setupWV();
         setupHWV();
 
-        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+//        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
 
         run.setOnClickListener(view -> {
-            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
-            Log.d(TAG, Arrays.toString(url_to_name.get(HWV_LAST_VISIT).toArray()));
-            Log.d(TAG, Arrays.toString(recent_downloads.toArray()));
+//            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
+//            Log.d(TAG, Arrays.toString(url_to_name.get(HWV_LAST_VISIT).toArray()));
+//            Log.d(TAG, Arrays.toString(recent_downloads.toArray()));
+            sendWallToDesktop("225828859_347655843521075_1510817421766449070_n.jpg");
         });
         run.setOnLongClickListener(view -> {
             saveObject(url_to_name, "url_to_name_backup");
@@ -272,24 +278,58 @@ public class MainActivity extends AppCompatActivity {
         return "none";
     }
 
+    void sendWallToDesktop(String fnm) {
+        new Thread(() -> {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new URL("http://192.168.29.229:8080").openConnection();
+                conn.setRequestMethod("POST");
+//                conn.setRequestProperty("Content-Type","image/jpeg");
+                byte[] buffer = new byte[1024];
+                OutputStream out = conn.getOutputStream();
+                FileInputStream in = new FileInputStream(new File(getExternalFilesDir(null), fnm));
+                int rd = 0;
+                while((rd=in.read(buffer))>0){
+                    out.write(buffer,0,rd);
+                }
+
+                Log.d(TAG, "Written");
+
+
+                rd = conn.getInputStream().read(buffer);
+                Log.d(TAG, new String(Arrays.copyOfRange(buffer, 0, rd)));
+//               BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+//               StringBuilder response = new StringBuilder();
+//               String responseLine = null;
+//               while ((responseLine = br.readLine()) != null) {
+//                   response.append(responseLine.trim());
+//               }
+//               Log.d(TAG, response.toString());;
+            } catch (Exception e) {
+                Log.d(TAG, Log.getStackTraceString(e));
+            }
+        }).start();
+    }
+
     void setWallpaper(String fnm) {
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(getExternalFilesDir(null).getAbsolutePath() + "/" + fnm);
             DisplayMetrics met = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(met);
+            getWindowManager().getDefaultDisplay().getRealMetrics(met);
             int w = met.widthPixels;
             int h = met.heightPixels;
-            Bitmap background = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
+            int sh = (int) ((float) w / (float) bitmap.getWidth() * (float) bitmap.getHeight());
+            Bitmap background = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(background);
-            bitmap = Bitmap.createScaledBitmap(bitmap, w, (int)((float)w/(float)bitmap.getWidth()*(float)bitmap.getHeight()), true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, w, sh, true);
 
-            canvas.drawBitmap(bitmap,0,(h-bitmap.getHeight())/2, new Paint());
+            canvas.drawBitmap(bitmap, 0, (h - sh) / 2, new Paint());
 
-            background.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getExternalFilesDir(null),"test.png")));
-            Log.d(TAG, String.valueOf(w) + " " + String.valueOf(h));
+            background.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File(getExternalFilesDir(null), "test.png")));
+            Log.d(TAG, String.valueOf(sh));
             WallpaperManager manager = WallpaperManager.getInstance(getApplicationContext());
             manager.setBitmap(background);
             Log.d(TAG, "Wallpaper set");
+            sendWallToDesktop(fnm);
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
