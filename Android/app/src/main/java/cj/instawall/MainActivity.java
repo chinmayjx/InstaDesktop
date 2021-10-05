@@ -41,13 +41,14 @@ public class MainActivity extends AppCompatActivity {
     String HWV_FLAG;
     String get_all_links,insert_dwn_btns,download_post;
     String username = "chinmayjain08";
+    Random rnd = new Random();
     HashMap<String,String> url_to_name;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor spEditor;
     WebView wv,hwv;
     WebChromeClient wvChromeClient;
     WebViewClient wvClient;
-    Button run,hide_wv,sync;
+    Button run,hide_wv,sync,random;
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         run = findViewById(R.id.run);
         hide_wv = findViewById(R.id.hide_wv);
         sync = findViewById(R.id.sync);
+        random = findViewById(R.id.random);
         readObjects();
         readScripts();
         setupWV();
@@ -85,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
         sync.setOnClickListener(view -> {
             HWV_FLAG = "sync";
             hwv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+        });
+        random.setOnClickListener(view -> {
+            String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
+            wv.loadUrl("https://instagram.com" + keys[rnd.nextInt(url_to_name.keySet().size())]);
         });
     }
 
@@ -139,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if(view == wv) {
+//                    if(wv.getUrl().equals("http://i"))
+                    Log.d(TAG, wv.getUrl());
                     wv.evaluateJavascript(insert_dwn_btns, null);
                 }
                 if(view == hwv){

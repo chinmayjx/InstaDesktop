@@ -35,15 +35,16 @@ async function run(){
   async function get_links() {
     var l = document.querySelectorAll("._bz0w a")
     l.forEach(function (a) {
-      links.add(a.getAttribute('href'))
+      if(!a) return;
+      let ln = a.getAttribute('href');
+      if(!ln) return;
+      if(!links.has(ln)) console.log("post_link:"+ln);
+      links.add(ln);
     });
   }
   await scr();
   links = Array.from(links);
   console.log(links.length);
-  links.forEach(ln =>{
-    console.log("post_link:"+ln);
-  });
   return links;
 }
 
