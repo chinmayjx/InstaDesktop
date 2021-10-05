@@ -3,7 +3,12 @@ package cj.instawall;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.WallpaperManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -85,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, Arrays.toString(recent_downloads.toArray()));
         });
         run.setOnLongClickListener(view -> {
-
+            saveObject(url_to_name,"url_to_name_backup");
+            Log.d(TAG, "Backedup");
             return true;
         });
         hide_wv.setOnClickListener(view -> {
@@ -96,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             HWV_FLAG = "sync";
             hwv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
         });
+
         random.setOnClickListener(view -> {
             String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
             recent_downloads.clear();
@@ -121,13 +128,18 @@ public class MainActivity extends AppCompatActivity {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name")));
             url_to_name = (HashMap<String, HashSet<String>>) in.readObject();
+            if(url_to_name == null){
+                url_to_name = new HashMap<>();
+            }
         }
         catch (FileNotFoundException e){
+            Log.d(TAG, "FileNotFound");
             url_to_name = new HashMap<>();
         }
         catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
+        Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
     }
 
     void readScripts(){
@@ -245,7 +257,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setWallpaper(String fnm){
-
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(getExternalFilesDir(null).getAbsolutePath()+"/"+fnm);
+            WallpaperManager manager = WallpaperManager.getInstance(getApplicationContext());
+            manager.setBitmap(bitmap);
+            Log.d(TAG, "Wallpaper set");
+        }
+        catch (Exception e) {
+            Log.d(TAG, Log.getStackTraceString(e));
+        }
     }
 
     void downloadFile(String url){
@@ -281,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 if(DOWNLOAD_STACK_COUNT == 0){
                     int ri = rnd.nextInt(recent_downloads.size());
                     Log.d(TAG, "Set wallpaper" + recent_downloads.get(ri));
+                    setWallpaper(recent_downloads.get(ri));
                 }
             }
         }).start();
