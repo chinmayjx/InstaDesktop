@@ -93,13 +93,12 @@ public class MainActivity extends AppCompatActivity {
         setupWV();
         setupHWV();
 
-//        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+        wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
 
         run.setOnClickListener(view -> {
-//            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
-//            Log.d(TAG, Arrays.toString(url_to_name.get(HWV_LAST_VISIT).toArray()));
-//            Log.d(TAG, Arrays.toString(recent_downloads.toArray()));
-            sendWallToDesktop("225828859_347655843521075_1510817421766449070_n.jpg");
+            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
+
+//            sendWallToDesktop("225828859_347655843521075_1510817421766449070_n.jpg");
         });
         run.setOnLongClickListener(view -> {
             saveObject(url_to_name, "url_to_name_backup");
