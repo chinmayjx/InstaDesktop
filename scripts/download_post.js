@@ -1,4 +1,5 @@
 async function image_links(){
+  let cur_url = window.location.href.split("com").at(-1);
   let TL = 5000;
   let lt = 0;
   let set = new Set();
@@ -10,7 +11,7 @@ async function image_links(){
       if (tmp){
         if(!set.has(tmp)){
           console.log(set.size);
-          console.log("download:"+tmp);
+          console.log("download:"+cur_url+" "+tmp);
           set.add(tmp);
         }
       }
@@ -54,8 +55,6 @@ async function image_links(){
 }
 
 image_links();
-
-
 
 
 
