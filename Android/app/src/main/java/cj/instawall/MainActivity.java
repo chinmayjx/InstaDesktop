@@ -43,6 +43,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -94,19 +95,23 @@ public class MainActivity extends AppCompatActivity {
         setupHWV();
 
         run.setOnClickListener(view -> {
-            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
-
-            print_url_to_name();
+//            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
+//            wv.evaluateJavascript(download_post,null);
+//            print_url_to_name();
 
         });
         run.setOnLongClickListener(view -> {
-            saveObject(url_to_name, "url_to_name_backup");
-            Log.d(TAG, "Backedup");
+//            saveObject(url_to_name, "url_to_name_backup");
+//            Log.d(TAG, "Backedup");
             return true;
         });
         hide_wv.setOnClickListener(view -> {
             if (wv.getVisibility() == View.VISIBLE) wv.setVisibility(View.INVISIBLE);
             else wv.setVisibility(View.VISIBLE);
+        });
+        hide_wv.setOnLongClickListener(view -> {
+            get_linked_file_count();
+            return true;
         });
         sync.setOnClickListener(view -> {
 //            wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
@@ -121,13 +126,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         random.setOnClickListener(view -> {
-            try{
+            try {
                 String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
                 String purl = keys[rnd.nextInt(url_to_name.keySet().size())];
-                if(false && url_to_name.get(purl).size()>0){
+                if (false && url_to_name.get(purl).size() > 0) {
                     Log.d(TAG, "post on device");
-                }
-                else{
+                } else {
                     recent_downloads.clear();
                     HWV_FLAG = "download_post";
                     HWV_LAST_VISIT = purl;
@@ -136,15 +140,14 @@ public class MainActivity extends AppCompatActivity {
                     random.setText("");
                     random.setClickable(false);
                 }
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 Log.d(TAG, Log.getStackTraceString(e));
             }
         });
 
         random.setOnLongClickListener(view -> {
-            String fnm = sharedPreferences.getString("current_wallpaper",null);
-            if(fnm!=null){
+            String fnm = sharedPreferences.getString("current_wallpaper", null);
+            if (fnm != null) {
                 sendWallToDesktop(fnm);
                 Toast.makeText(getApplicationContext(), "sending", Toast.LENGTH_SHORT).show();
             }
@@ -255,17 +258,18 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (action.equals("visit")) {
                     try {
-                        if(url_to_name.get(mess).size()>0){
+                        if (url_to_name.get(mess).size() > 0) {
                             Log.d(TAG, "offline post");
-                            wallpaperFromOffline();
-                        }
-                        else{
+                            wallpaperFromOffline(mess);
+                        } else {
                             HWV_LAST_VISIT = mess;
                             POST_DOWNLOAD_ACTION = "wallpaper";
                             recent_downloads.clear();
                             hwv.loadUrl("http://instagram.com" + mess);
                         }
-                    }catch (Exception e){};
+                    } catch (Exception e) {
+                    }
+                    ;
 
                 }
                 if (action.equals("download_cnt")) {
@@ -323,8 +327,8 @@ public class MainActivity extends AppCompatActivity {
                 OutputStream out = conn.getOutputStream();
                 FileInputStream in = new FileInputStream(new File(getExternalFilesDir(null), fnm));
                 int rd = 0;
-                while((rd=in.read(buffer))>0){
-                    out.write(buffer,0,rd);
+                while ((rd = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, rd);
                 }
                 out.flush();
                 out.close();
@@ -340,8 +344,23 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    void wallpaperFromOffline(){
-
+    void wallpaperFromOffline(String post) {
+        try {
+            HashSet<String> ts = url_to_name.get(post);
+            String[] list = ts.toArray(new String[ts.size()]);
+            Log.d(TAG, Arrays.toString(list));
+            String rf = list[rnd.nextInt(list.length)];
+            while (list.length > 0 && !new File(getExternalFilesDir(null), rf).exists()) {
+                url_to_name.get(post).remove(rf);
+                ts = url_to_name.get(post);
+                list = ts.toArray(new String[ts.size()]);
+                rf = list[rnd.nextInt(list.length)];
+            }
+            Log.d(TAG, rf);
+            setWallpaper(rf);
+        } catch (Exception e) {
+            Log.d(TAG, Log.getStackTraceString(e));
+        }
     }
 
     void setWallpaper(String fnm) {
@@ -362,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, String.valueOf(sh));
             WallpaperManager manager = WallpaperManager.getInstance(getApplicationContext());
             manager.setBitmap(background);
-            spEditor.putString("current_wallpaper",fnm);
+            spEditor.putString("current_wallpaper", fnm);
             spEditor.commit();
             Log.d(TAG, "Wallpaper set");
             sendWallToDesktop(fnm);
@@ -416,19 +435,39 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    void print_url_to_name(){
+    void print_url_to_name() {
         try {
             int ct = 0;
-            for( String k : url_to_name.keySet() ){
+            for (String k : url_to_name.keySet()) {
                 Log.d(TAG, k);
                 ct += url_to_name.get(k).size();
                 Log.d(TAG, Arrays.toString(url_to_name.get(k).toArray()));
-            };
+            }
+            ;
             Log.d(TAG, "number of linked files : " + String.valueOf(ct));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
     }
 
+    void get_linked_file_count() {
+        HashSet<String> files = new HashSet<>();
+        int ct = 0;
+        try {
+            File dir = new File(getExternalFilesDir(null).getAbsolutePath());
+            for (File f : dir.listFiles()) {
+                String t = f.getName();
+                if (t.endsWith(".jpg")) files.add(t);
+            }
+            for (String k : url_to_name.keySet()) {
+                for (String n : url_to_name.get(k)) {
+                    if (new File(getExternalFilesDir(null), n).exists()) {
+                        ct++;
+                    }
+                }
+            }
+            Toast.makeText(getApplicationContext(), String.valueOf(ct)+"/"+String.valueOf(files.size()), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+        }
+    }
 }
