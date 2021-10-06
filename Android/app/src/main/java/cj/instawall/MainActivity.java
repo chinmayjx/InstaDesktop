@@ -126,6 +126,14 @@ public class MainActivity extends AppCompatActivity {
             random.setClickable(false);
         });
 
+        random.setOnLongClickListener(view -> {
+            String fnm = sharedPreferences.getString("current_wallpaper",null);
+            if(fnm!=null){
+                sendWallToDesktop(fnm);
+            }
+            return true;
+        });
+
         // --------------------
 
 //        setWallpaper("197849760_234294944779150_2759185063273606450_n.jpg");
@@ -329,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, String.valueOf(sh));
             WallpaperManager manager = WallpaperManager.getInstance(getApplicationContext());
             manager.setBitmap(background);
+            spEditor.putString("current_wallpaper",fnm);
+            spEditor.commit();
             Log.d(TAG, "Wallpaper set");
             sendWallToDesktop(fnm);
         } catch (Exception e) {
