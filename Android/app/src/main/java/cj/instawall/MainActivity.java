@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -25,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.CookieManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedInputStream;
@@ -82,9 +84,8 @@ public class MainActivity extends AppCompatActivity {
         spEditor = sharedPreferences.edit();
         wv = findViewById(R.id.webView);
         hwv = findViewById(R.id.hiddenWebView);
-//        hwv = new WebView(getApplicationContext());
-        hwv.setMinimumHeight(1920);
-        hwv.setMinimumWidth(1080);
+//        hwv = new WebView(this);
+
         run = findViewById(R.id.run);
         hide_wv = findViewById(R.id.hide_wv);
         sync = findViewById(R.id.sync);
@@ -98,11 +99,13 @@ public class MainActivity extends AppCompatActivity {
 //            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
 //            wv.evaluateJavascript(download_post,null);
 //            print_url_to_name();
-            startService(new Intent(this,MainService.class));
+//            startService(new Intent(this,MainService.class));
+            startService(new Intent(this, MainService.class));
         });
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");
 //            Log.d(TAG, "Backedup");
+            startActivity(new Intent(this, DumbActivity.class));
             return true;
         });
         hide_wv.setOnClickListener(view -> {
@@ -114,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         sync.setOnClickListener(view -> {
-//            wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
-            wv.loadUrl("https://www.instagram.com/chinmayjain08");
+            wv.loadUrl("https://www.instagram.com/chinmayjain08/saved");
+//            wv.loadUrl("https://www.instagram.com/chinmayjain08");
         });
         sync.setOnLongClickListener(view -> {
             Toast.makeText(getApplicationContext(), "Syncing", Toast.LENGTH_SHORT).show();
@@ -466,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            Toast.makeText(getApplicationContext(), String.valueOf(ct)+"/"+String.valueOf(files.size()), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), String.valueOf(ct) + "/" + String.valueOf(files.size()), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
         }
     }

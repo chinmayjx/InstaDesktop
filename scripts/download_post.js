@@ -1,6 +1,6 @@
 async function image_links(){
   let cur_url = window.location.href.split("com").at(-1);
-  let TL = 5000;
+  let TL = 10000;
   let lt = 0;
   let set = new Set();
   function update_set() {
