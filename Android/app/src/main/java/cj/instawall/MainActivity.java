@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 //            Log.d(TAG, String.valueOf(url_to_name.keySet().size()));
 //            wv.evaluateJavascript(download_post,null);
 //            print_url_to_name();
-
+            startService(new Intent(this,MainService.class));
         });
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");
