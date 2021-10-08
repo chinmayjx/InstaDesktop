@@ -22,32 +22,23 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Toast.makeText(getApplicationContext(), "updating...", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "created");
         wm = new WebManager(this);
         wm.layout(0, 0, 5000, 5000);
-        Handler han = new Handler();
-        Runnable rnb = new Runnable() {
-            @Override
-            public void run() {
-                wm.setRandomWallpaper();
-                han.postDelayed(this,10*60*1000);
-            }
-        };
-        han.post(rnb);
-        wm.saveObjects();
+        wm.setRandomWallpaper();
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, String.valueOf(wm==null));
         super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "save objects");
-        wm.saveObjects();
+        Log.d(TAG, "destroyed service");
         super.onDestroy();
     }
 

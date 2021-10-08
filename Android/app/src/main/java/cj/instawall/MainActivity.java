@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -100,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
 //            wv.evaluateJavascript(download_post,null);
 //            print_url_to_name();
 //            startService(new Intent(this,MainService.class));
-            startService(new Intent(this, MainService.class));
+
+            registerReceiver(new MainReceiver(),new IntentFilter("cj.instawall.random"));
+            sendBroadcast(new Intent().setAction("cj.instawall.random"));
         });
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");

@@ -2,6 +2,7 @@ package cj.instawall;
 
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -220,6 +221,8 @@ public class WebManager extends WebView {
             spEditor.putString("current_wallpaper", fnm);
             spEditor.commit();
             Log.d(TAG, "Wallpaper set");
+            saveObjects();
+            context.stopService(new Intent(context,MainService.class));
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
@@ -289,6 +292,27 @@ public class WebManager extends WebView {
             }
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
+        }
+    }
+    void get_linked_file_count() {
+        HashSet<String> files = new HashSet<>();
+        int ct = 0;
+        try {
+            File dir = new File(context.getExternalFilesDir(null).getAbsolutePath());
+            for (File f : dir.listFiles()) {
+                String t = f.getName();
+                if (t.endsWith(".jpg")) files.add(t);
+            }
+            for (String k : url_to_name.keySet()) {
+                for (String n : url_to_name.get(k)) {
+                    if (new File(context.getExternalFilesDir(null), n).exists()) {
+                        ct++;
+                    }
+                }
+            }
+            Toast.makeText(context, String.valueOf(ct) + "/" + String.valueOf(files.size()), Toast.LENGTH_SHORT).show();
+            Log.d(TAG, String.valueOf(ct) + "/" + String.valueOf(files.size()));
+        } catch (Exception e) {
         }
     }
 }
