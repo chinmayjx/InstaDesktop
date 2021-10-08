@@ -102,13 +102,13 @@ public class MainActivity extends AppCompatActivity {
 //            print_url_to_name();
 //            startService(new Intent(this,MainService.class));
 
-            registerReceiver(new MainReceiver(),new IntentFilter("cj.instawall.random"));
-            sendBroadcast(new Intent().setAction("cj.instawall.random"));
+//            registerReceiver(new MainReceiver(),new IntentFilter("cj.instawall.random"));
+//            sendBroadcast(new Intent().setAction("cj.instawall.random"));
         });
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");
 //            Log.d(TAG, "Backedup");
-            startActivity(new Intent(this, DumbActivity.class));
+//            startActivity(new Intent(this, DumbActivity.class));
             return true;
         });
         hide_wv.setOnClickListener(view -> {

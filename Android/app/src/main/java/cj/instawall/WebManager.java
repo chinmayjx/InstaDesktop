@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,12 +224,37 @@ public class WebManager extends WebView {
             spEditor.commit();
             Log.d(TAG, "Wallpaper set");
             saveObjects();
-            context.stopService(new Intent(context,MainService.class));
+            sendWallToDesktop(fnm);
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
     }
+    void sendWallToDesktop(String fnm) {
+        new Thread(() -> {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new URL("http://192.168.29.229:8080").openConnection();
+                conn.setRequestMethod("POST");
+                byte[] buffer = new byte[1024];
+                OutputStream out = conn.getOutputStream();
+                FileInputStream in = new FileInputStream(new File(context.getExternalFilesDir(null), fnm));
+                int rd = 0;
+                while ((rd = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, rd);
+                }
+                out.flush();
+                out.close();
 
+                Log.d(TAG, "Written");
+
+                rd = conn.getInputStream().read(buffer);
+                Log.d(TAG, new String(Arrays.copyOfRange(buffer, 0, rd)));
+
+            } catch (Exception e) {
+                Log.d(TAG, Log.getStackTraceString(e));
+            }
+            context.stopService(new Intent(context,MainService.class));
+        }).start();
+    }
     void downloadFile(String pu) {
         String[] tmp = pu.split(" ");
         String post_url = tmp[0];
