@@ -224,10 +224,10 @@ public class WebManager extends WebView {
             spEditor.commit();
             Log.d(TAG, "Wallpaper set");
             saveObjects();
-            sendWallToDesktop(fnm);
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
+        context.stopService(new Intent(context,MainService.class));
     }
     void sendWallToDesktop(String fnm) {
         new Thread(() -> {
@@ -252,7 +252,6 @@ public class WebManager extends WebView {
             } catch (Exception e) {
                 Log.d(TAG, Log.getStackTraceString(e));
             }
-            context.stopService(new Intent(context,MainService.class));
         }).start();
     }
     void downloadFile(String pu) {
@@ -308,8 +307,9 @@ public class WebManager extends WebView {
         try {
             String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
             String purl = keys[rnd.nextInt(url_to_name.keySet().size())];
-            if (false && url_to_name.get(purl).size() > 0) {
+            if (url_to_name.get(purl).size() > 0) {
                 Log.d(TAG, "post on device");
+                wallpaperFromOffline(purl);
             } else {
                 recent_downloads.clear();
                 HWV_FLAG = "download_post";

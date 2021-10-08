@@ -135,8 +135,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String[] keys = url_to_name.keySet().toArray(new String[url_to_name.keySet().size()]);
                 String purl = keys[rnd.nextInt(url_to_name.keySet().size())];
-                if (false && url_to_name.get(purl).size() > 0) {
+                if (url_to_name.get(purl).size() > 0) {
                     Log.d(TAG, "post on device");
+                    wallpaperFromOffline(purl);
                 } else {
                     recent_downloads.clear();
                     HWV_FLAG = "download_post";
@@ -166,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
         // --------------------
     }
+
 
     void saveObject(Object o, String n) {
         try {

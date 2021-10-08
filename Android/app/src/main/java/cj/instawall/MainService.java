@@ -22,21 +22,7 @@ public class MainService extends Service {
 
     String TAG = "CJ";
     WebManager wm;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        Toast.makeText(getApplicationContext(), "updating...", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "created");
-        wm = new WebManager(this);
-        wm.layout(0, 0, 5000, 5000);
-        wm.setRandomWallpaper();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
+    void launchForeG(){
         String CHANNEL_ID = "my_channel_01";
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                 "Channel human readable title",
@@ -49,6 +35,21 @@ public class MainService extends Service {
                 .setContentText("").build();
 
         startForeground(1, notification);
+    }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate");
+        launchForeG();
+        wm = new WebManager(this);
+        wm.layout(0, 0, 5000, 5000);
+        wm.setRandomWallpaper();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.d(TAG, "onStart");
 
         return START_NOT_STICKY;
     }
