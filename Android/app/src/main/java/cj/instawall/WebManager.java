@@ -169,6 +169,7 @@ public class WebManager extends WebView {
                 }
                 if (action.equals("download_cnt")) {
                     DOWNLOAD_STACK_COUNT = Integer.parseInt(mess);
+                    if(DOWNLOAD_STACK_COUNT == 0) stopMainService();
                 }
                 if (action.equals("download")) {
                     downloadFile(mess);
@@ -227,6 +228,9 @@ public class WebManager extends WebView {
         } catch (Exception e) {
             Log.d(TAG, Log.getStackTraceString(e));
         }
+        stopMainService();
+    }
+    void stopMainService(){
         context.stopService(new Intent(context,MainService.class));
     }
     void sendWallToDesktop(String fnm) {

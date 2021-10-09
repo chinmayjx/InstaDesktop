@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");
 //            Log.d(TAG, "Backedup");
-//            startActivity(new Intent(this, DumbActivity.class));
+            startActivity(new Intent(this, DumbActivity.class));
             return true;
         });
         hide_wv.setOnClickListener(view -> {

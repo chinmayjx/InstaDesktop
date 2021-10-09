@@ -1,6 +1,6 @@
 async function image_links(){
   let cur_url = window.location.href.split("com").at(-1);
-  let TL = 10000;
+  let TL = 5000;
   let lt = 0;
   let set = new Set();
   function update_set() {
@@ -27,7 +27,7 @@ async function image_links(){
   }
   
   let n_posts = document.querySelectorAll(".Yi5aA").length;
-  if(n_posts==0) n_posts=1;
+  if(img.length > 0 && n_posts==0) n_posts=1;
   console.log("download_cnt:"+n_posts);
   
   if(img.length == 1){
