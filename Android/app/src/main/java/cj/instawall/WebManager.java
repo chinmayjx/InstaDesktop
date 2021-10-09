@@ -56,7 +56,7 @@ public class WebManager extends WebView {
     public WebManager(@NonNull Context context) {
         super(context);
         this.context = context;
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences = context.getSharedPreferences("pref",Context.MODE_PRIVATE);
         spEditor = sharedPreferences.edit();
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);

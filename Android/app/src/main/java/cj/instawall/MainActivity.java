@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("pref",MODE_PRIVATE);
         spEditor = sharedPreferences.edit();
         wv = findViewById(R.id.webView);
         hwv = findViewById(R.id.hiddenWebView);
