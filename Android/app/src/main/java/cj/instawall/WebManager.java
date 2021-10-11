@@ -209,6 +209,11 @@ public class WebManager extends WebView {
             ((WindowManager) context.getSystemService(context.WINDOW_SERVICE)).getDefaultDisplay().getRealMetrics(met);
             int w = met.widthPixels;
             int h = met.heightPixels;
+            if(w>h){
+                int tmp = w;
+                w = h;
+                h = tmp;
+            }
             Log.d(TAG, String.valueOf(w) + " x " + String.valueOf(h));
             int sh = (int) ((float) w / (float) bitmap.getWidth() * (float) bitmap.getHeight());
             Bitmap background = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);

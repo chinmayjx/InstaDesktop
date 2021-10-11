@@ -44,6 +44,13 @@ public class MainService extends Service {
         wm = new WebManager(this);
         wm.layout(0, 0, 5000, 5000);
         wm.setRandomWallpaper();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "terminated");
+                stopSelf();
+            }
+        },10000);
     }
 
     @Override
