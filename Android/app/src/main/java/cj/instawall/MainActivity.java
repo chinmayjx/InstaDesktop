@@ -1,4 +1,4 @@
-package cj.instawall;
+ package cj.instawall;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -107,8 +107,14 @@ public class MainActivity extends AppCompatActivity {
         });
         run.setOnLongClickListener(view -> {
 //            saveObject(url_to_name, "url_to_name_backup");
+//            try {
+//                ObjectInputStream oin=new ObjectInputStream(new FileInputStream(new File(getFilesDir(),"url_to_name_backup")));
+//                Log.d(TAG, "Number of keys in backup: " + ((HashMap<String,HashSet<String>>)oin.readObject()).keySet().size());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
 //            Log.d(TAG, "Backedup");
-            startActivity(new Intent(this, DumbActivity.class));
+//            startActivity(new Intent(this, DumbActivity.class));
             return true;
         });
         hide_wv.setOnClickListener(view -> {
